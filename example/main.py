@@ -10,8 +10,8 @@ import os
 
 
 def main():
-    datastoreId = "7d997634041974df7c23aa016833ccee" #Replace this value with your datastoreId
-    imageSetId = "91e80f552ad9fbfa525103f3c0d368ae" #Replace this value with your imageSetId"
+    datastoreId = "7d997634041974df7c23aa016833ccee" #Replace this value with your datastoreId.
+    imageSetId = "91e80f552ad9fbfa525103f3c0d368ae" #Replace this value with your imageSetId.
     AHLIEndpoint = None  # Can be set to None if the default AHLI endpoint is used.
 
     # Default values for Frame Fetcher and DICOMizer processes count.
