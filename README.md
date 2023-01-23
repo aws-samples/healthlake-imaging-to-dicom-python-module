@@ -66,4 +66,30 @@ AHLItoDICOM(<br>aws_access_key : str =  None,<br> aws_secret_key : str = None ,<
 
 ## Code Example
 
-the file `example/main.py` demonstrates how to use the various functions described above. To use it modifiy the `datastoreId` and the `imageSetId` variables in the main function. You can also experiment by changing the `fetcher_count` and `dicomizer_count` parameters for better performance.
+the file `example/main.py` demonstrates how to use the various functions described above. To use it modifiy the `datastoreId` and the `imageSetId` variables in the main function. You can also experiment by changing the `fetcher_count` and `dicomizer_count` parameters for better performance. Below is an example how the example can be started with an environment where the AWS CLI was configure with an IAM user and the region us-east-2 selected as default : 
+
+```
+$ python3 main.py
+588 DICOMized in 12.933082818984985.
+Exporting images of the ImageSet in png format.
+Exporting images of the ImageSet in DICOM P10 format.
+Series listed :
+[{'SeriesNumber': '1', 'Modality': 'CT', 'SeriesDescription': 'CT series for liver tumor from nii 014', 'SeriesInstanceUID': '1.2.826.0.1.3680043.2.1125.1.34918616334750294149839565085991567'}]
+Series with 588 instances DICOMized in 10.483197689056396.
+```
+After the example code has returned the file system now contains a folder named with the `StudyInstanceUID` of the imageSet exported within the `out` folder. This fodler holds the DICOM P10 files for the imageSet. There is also a folder named by the `StudyInstanceUId` directly at the root of this code example, this folder contains PNG representations of the DICOM images. 
+```
+$ ls
+1.2.826.0.1.3680043.2.1125.1.19616861412188316212577695277886020  main.py  out  service-2.json
+```
+It is possible to pass boto3 env variables for the process using this module on the fly. The below command demonstrates how to run the example by passing the IAM credentials and the AWS region as env variables :
+
+```
+AWS_DEFAULT_REGION=us-east-1 AWS_ACCESS_KEY_ID=AKBBBBBUADXXXZTZP5EN AWS_SECRET_ACCESS_KEY=Tc9XdfGcLsY8r5edUjQpd7qasNXmYJmOB7vjg3mzU76  python3 main.py
+588 DICOMized in 12.933082818984985.
+Exporting images of the ImageSet in png format.
+Exporting images of the ImageSet in DICOM P10 format.
+Series listed :
+[{'SeriesNumber': '1', 'Modality': 'CT', 'SeriesDescription': 'CT series for liver tumor from nii 014', 'SeriesInstanceUID': '1.2.826.0.1.3680043.2.1125.1.34918616334750294149839565085991567'}]
+Series with 588 instances DICOMized in 10.483197689056396.
+```
