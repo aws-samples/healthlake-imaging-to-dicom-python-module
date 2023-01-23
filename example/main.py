@@ -7,12 +7,13 @@ SPDX-License-Identifier: Apache-2.0
 from AHLItoDICOMInterface.AHLItoDICOM import AHLItoDICOM
 import time
 import os
-
+import logging
 
 def main():
-    datastoreId = "7d997634041974df7c23aa016833ccee" #Replace this value with your datastoreId.
-    imageSetId = "91e80f552ad9fbfa525103f3c0d368ae" #Replace this value with your imageSetId.
-    AHLIEndpoint = None  # Can be set to None if the default AHLI endpoint is used.
+    
+    datastoreId = "7d997634041974df7c23aa016833ccee" #Replace this value with your datastoreId
+    imageSetId = "91e80f552ad9fbfa525103f3c0d368ae" #Replace this value with your imageSetId
+    AHLIEndpoint = "https://iad.gamma.medical-imaging.ai.aws.dev"  # Can be set to None if the default AHLI endpoint is used.
 
     # Default values for Frame Fetcher and DICOMizer processes count.
     # Frame Fetcher : Number of Parallelize processes to fetchand decompress the HTJ2K frames from AHLI. If Set to None the default value will be 4 x number of cores.
@@ -20,7 +21,7 @@ def main():
     fetcher_count = None
     dicomizer_count = None
 
-    
+    logging.getLogger('botocore').setLevel(logging.ERROR)
     # Initialize the AHLItoDICOM conversion helper.
     helper = AHLItoDICOM( AHLI_endpoint= AHLIEndpoint , fetcher_process_count=fetcher_count , dicomizer_process_count=dicomizer_count)
 
