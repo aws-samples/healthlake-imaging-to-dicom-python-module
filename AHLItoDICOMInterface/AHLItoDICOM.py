@@ -170,6 +170,7 @@ class AHLItoDICOM:
             json_study_metadata = json.loads(json_study_metadata)  
             return json_study_metadata
         except Exception as AHLIErr :
+            logging.error(AHLIErr)
             return None
 
     def getInstanceNumber(self, elem):
@@ -207,7 +208,7 @@ class AHLItoDICOM:
             self.frameDICOMizerThreadList.append(AHLIDataDICOMizer(str(x) , AHLI_metadata ))
         
     def configure_boto(self):
-        os.environ['AWS_DATA_PATH'] = "/tmp"
+        os.environ['AWS_DATA_PATH'] = tempfile.gettempdir()
         serviceModelPath = os.path.join(tempfile.gettempdir(), 'medical-imaging/2022-10-19')
         os.makedirs(serviceModelPath, exist_ok=True)
         try:
