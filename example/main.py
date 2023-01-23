@@ -47,7 +47,6 @@ def main():
     print("Exporting images of the ImageSet in DICOM P10 format.")
     for ins in instances:
         StudyUID = ins["StudyInstanceUID"].value
-        print(ins["InstanceNumber"].value)
         helper.saveAsDICOM(ds= ins, destination=f"./out/{StudyUID}")
 
     #Demonstrates how to DICOMize a specific Series : 
