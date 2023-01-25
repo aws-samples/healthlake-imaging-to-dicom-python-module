@@ -8,7 +8,7 @@ This module can be installed with the python pip utility.
 
 1. Clone this repository:
 ```terminal
-    git clone https://gitlab.aws.dev/wwps-hcls-sa/med-imaging/amazon-healthlake-imaging-dicom-exporter-module.git
+    git clone https://github.com/aws-samples/healthlake-imaging-to-dicom-python-module.git
 ```
 2. Locate your terminal in the cloned folder.
 3. Execute the below command to install the modudle via pip :
@@ -66,7 +66,7 @@ AHLItoDICOM(<br>aws_access_key : str =  None,<br> aws_secret_key : str = None ,<
 
 ## Code Example
 
-the file `example/main.py` demonstrates how to use the various functions described above. To use it modifiy the `datastoreId` and the `imageSetId` variables in the main function. You can also experiment by changing the `fetcher_count` and `dicomizer_count` parameters for better performance. Below is an example how the example can be started with an environment where the AWS CLI was configure with an IAM user and the region us-east-2 selected as default : 
+The file `example/main.py` demonstrates how to use the various functions described above. To use it modifiy the `datastoreId` and the `imageSetId` variables in the main function. You can also experiment by changing the `fetcher_count` and `dicomizer_count` parameters for better performance. Below is an example how the example can be started with an environment where the AWS CLI was configure with an IAM user and the region us-east-2 selected as default : 
 
 ```
 $ python3 main.py
