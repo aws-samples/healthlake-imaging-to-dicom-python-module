@@ -1,0 +1,5 @@
+boto3
+pydicom
+pylibjpeg-openjpeg>=1.3.0
+numpy
+pillow

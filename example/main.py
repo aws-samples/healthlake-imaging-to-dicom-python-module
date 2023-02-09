@@ -11,9 +11,9 @@ import logging
 
 def main():
     
-    datastoreId = "7d997634041974df7c23aa016833ccee" #Replace this value with your datastoreId
-    imageSetId = "91e80f552ad9fbfa525103f3c0d368ae" #Replace this value with your imageSetId
-    AHLIEndpoint = "https://iad.gamma.medical-imaging.ai.aws.dev"  # Can be set to None if the default AHLI endpoint is used.
+    datastoreId = "a93e5c898d64acea44f1d70bc6b5a5ce" #Replace this value with your datastoreId
+    imageSetId = "f91b503272c6095821b8e289a432287d" #Replace this value with your imageSetId
+    AHLIEndpoint = ""  # Can be set to None if the default AHLI endpoint is used.
 
     # Default values for Frame Fetcher and DICOMizer processes count.
     # Frame Fetcher : Number of Parallelize processes to fetchand decompress the HTJ2K frames from AHLI. If Set to None the default value will be 4 x number of cores.

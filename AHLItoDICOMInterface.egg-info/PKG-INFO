@@ -1,0 +1,18 @@
+Metadata-Version: 2.1
+Name: AHLItoDICOMInterface
+Version: 0.1.0
+Summary: A package to simply export DICOM dataset in memory or on the file system.
+Home-page: https://github.com/shuds13/pyexample
+Author: JP Leger
+Author-email: jpleger@amazon.com
+License: MIT-0
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT No Attribution License (MIT-0)
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+License-File: LICENSE
+License-File: NOTICE
