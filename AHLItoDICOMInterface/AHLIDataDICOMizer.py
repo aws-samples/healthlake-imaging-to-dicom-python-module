@@ -4,11 +4,12 @@ AHLItoDICOM Module : This class contains the logic to encapsulate the data and t
 SPDX-License-Identifier: Apache-2.0
 """
 from time import sleep
-from multiprocessing import Process , Queue
+from multiprocessing import Process , Queue , Value , Manager
+from ctypes import c_char_p
 import pydicom
 import logging
 from pydicom.sequence import Sequence
-from pydicom import Dataset , DataElement 
+from pydicom import Dataset , DataElement , multival
 from pydicom.dataset import FileDataset, FileMetaDataset
 from pydicom.uid import UID
 import base64
@@ -18,30 +19,36 @@ class AHLIDataDICOMizer():
 
     ds = Dataset()
     InstanceId  = None
-    thread_running = True
+    thread_running = None
     AHLI_metadata = None 
     process = None
+    status = None
+
 
     def __init__(self, InstanceId, AHLI_metadata) -> None:
         self.InstanceId = InstanceId
         self.DICOMizeJobs = Queue()
         self.DICOMizeJobsCompleted = Queue()
         self.AHLI_metadata = AHLI_metadata
-        self.process = Process(target = self.ProcessJobs , args=(self.DICOMizeJobs, self.DICOMizeJobsCompleted, ))
-        self.process.start()       
+        manager = Manager()
+        self.thread_running = manager.Value('i', 1)
+        self.status = manager.Value(c_char_p, "idle")
+        self.process = Process(target = self.ProcessJobs , args=(self.DICOMizeJobs, self.DICOMizeJobsCompleted, self.status , self.thread_running , self.InstanceId))
+        self.process.start()
+
 
 
 
     def AddDICOMizeJob(self,FetchJob):
             self.DICOMizeJobs.put(FetchJob)
-            logging.debug("[AHLIFrameFetcher][AddFetchJob]["+self.InstanceId+"] - Fetch Job added "+str(FetchJob)+".")
+            #logging.debug("[AHLIDataDICOMizer][AddDICOMizeJob]["+self.InstanceId+"] - DICOMize Job added "+str(FetchJob)+".")
 
-    def ProcessJobs(self , DICOMizeJobs , DICOMizeJobsCompleted):      
-        while(self.thread_running):
+    def ProcessJobs(self , DICOMizeJobs , DICOMizeJobsCompleted , status , thread_running , InstanceId):      
+        while(bool(thread_running.value)):
             if not DICOMizeJobs.empty():
-                self.status="busy"
+                status.value ="busy"
                 try:
-                    ImageFrame = DICOMizeJobs.get()
+                    ImageFrame = DICOMizeJobs.get(block=False)
                     vrlist = []       
                     file_meta = FileMetaDataset()
                     self.ds = FileDataset(None, {}, file_meta=file_meta, preamble=b"\0" * 128)
@@ -63,11 +70,16 @@ class AHLIDataDICOMizer():
                         self.ds.PixelData = pixels.tobytes()
                     vrlist.clear()
                     DICOMizeJobsCompleted.put(self.ds)
-                except Exception as FetchError:
-                    logging.error(f"[AHLIFrameFetcher][{str(self.InstanceId)}] - {FetchError}")
+                except Exception as DICOMizeError:
+                    print("ERROR")
+                    DICOMizeJobsCompleted.put(None)
+                    logging.error(f"[AHLIDataDICOMizer][{str(self.InstanceId)}] - {DICOMizeError}")
             else:
-                self.status = 'idle'    
-                sleep(0.05)
+                status.value = 'idle'    
+                sleep(0.1)
+            logging.debug(f" DICOMizer Process {InstanceId} : {status.value}")
+        status.value ="stopped"
+        logging.debug(f" DICOMizer Process {InstanceId} : {status.value}")
 
     def getFramesDICOMized(self):
         if not self.DICOMizeJobsCompleted.empty():
@@ -83,7 +95,7 @@ class AHLIDataDICOMizer():
     def getDICOMVRs(self,taglevel, vrlist):
         for theKey in taglevel:
             vrlist.append( [ theKey , taglevel[theKey] ])
-            logging.debug(f"[AHLIDataDICOMizer][getDICOMVRs] - List of private tags VRs: {vrlist}\r\n")
+            #logging.debug(f"[AHLIDataDICOMizer][getDICOMVRs] - List of private tags VRs: {vrlist}\r\n")
 
 
 
@@ -100,7 +112,7 @@ class AHLIDataDICOMizer():
                 datavalue=tagLevel[theKey]
                 #print(f"{theKey} : {datavalue}")
                 if(tagvr == 'SQ'):
-                    logging.debug(f"{theKey} : {tagLevel[theKey]} , {vrlist}")
+                    #logging.debug(f"{theKey} : {tagLevel[theKey]} , {vrlist}")
                     seqs = []
                     for underSeq in tagLevel[theKey]:
                         seqds = Dataset()
@@ -110,25 +122,27 @@ class AHLIDataDICOMizer():
                     continue
                 if(tagvr == 'US or SS'):
                     datavalue=tagLevel[theKey]
-                    if (int(datavalue) > 32767):
+                    if isinstance(datavalue, int):  #this could be a multi value element.
+                        if (int(datavalue) > 32767):
+                            tagvr = 'US'
+                        else:
+                            tagvr = 'SS'
+                    else:
                         tagvr = 'US'
                 if( tagvr in  [ 'OB' , 'OD' , 'OF', 'OL', 'OW', 'UN' ] ):
                     base64_str = tagLevel[theKey]
                     base64_bytes = base64_str.encode('utf-8')
                     datavalue = base64.decodebytes(base64_bytes)
-                if theKey == 'PrivateCreatorID': # Ignore this attribute, otherwise it creates an issue because it doesn't resolve to a DICOM tag
-                    continue
                 data_element = DataElement(theKey , tagvr , datavalue )
                 if data_element.tag.group != 2:
                     try:
-                        if (int(data_element.tag.group) % 2) == 0 : # we are skipping all the private tags
-                            ds.add(data_element) 
+                        ds.add(data_element) 
                     except:
                         continue
             except Exception as err:
-                logging.debug(f"[AHLIDataDICOMizer][getTags] - {err}")
+                logging.warning(f"[AHLIDataDICOMizer][getTags] - {err}")
                 continue
 
     def Dispose(self):
-        self.thread_running = False
-        self.process.terminate()
+        self.thread_running.value = 0
+        self.process.kill()

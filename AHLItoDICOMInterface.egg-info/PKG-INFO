@@ -6,6 +6,7 @@ Home-page: https://github.com/shuds13/pyexample
 Author: JP Leger
 Author-email: jpleger@amazon.com
 License: MIT-0
+Platform: UNKNOWN
 Classifier: Development Status :: 4 - Beta
 Classifier: Intended Audience :: Science/Research
 Classifier: License :: OSI Approved :: MIT No Attribution License (MIT-0)
@@ -16,3 +17,6 @@ Classifier: Programming Language :: Python :: 3.9
 Classifier: Programming Language :: Python :: 3.10
 License-File: LICENSE
 License-File: NOTICE
+
+UNKNOWN
+
