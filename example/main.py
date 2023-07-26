@@ -1,10 +1,10 @@
 """
-main.py : This program is an example of how to use the AHLItoDICOM module.
+main.py : This program is an example of how to use the AHItoDICOM module.
 
 SPDX-License-Identifier: Apache-2.0
 """
 
-from AHLItoDICOMInterface.AHLItoDICOM import AHLItoDICOM
+from AHItoDICOMInterface.AHItoDICOM import AHItoDICOM
 import time
 import os
 import logging
@@ -18,19 +18,19 @@ def main():
     datastoreId = "713e4f5237a84bec991d283fa9a0788a" #Replace this value with your datastoreId.
     imageSetId = "81bfc6aa3416912056e95188ab74870b" #Replace this value with your imageSetId.
     studyInstanceUID = "1.3.6.1.4.1.19291.2.1.1.11401331443219758551361281482" #Replace this value with the studyInstanceUID of a study exisiting in the datastore.
-    AHLIEndpoint = None  # Can be set to None if the default AHLI endpoint is used.
+    AHIEndpoint = None  # Can be set to None if the default AHI endpoint is used.
 
     # Default values for Frame Fetcher and DICOMizer processes count.
-    # Frame Fetcher : Number of Parallelize processes to fetchand decompress the HTJ2K frames from AHLI. If Set to None the default value will be 4 x number of cores.
+    # Frame Fetcher : Number of Parallelize processes to fetchand decompress the HTJ2K frames from AHI. If Set to None the default value will be 4 x number of cores.
     # DICOMizer : Number of Parallel processes to the build the DICOM dataset form the metadata and the frames fetched. If Set to None the default value will be 1 x number of cores.
     fetcher_count = None
     dicomizer_count = None
     
     
 
-    # Initialize the AHLItoDICOM conversion helper.
+    # Initialize the AHItoDICOM conversion helper.
     print("Getting ImageSet JSON metadata object.")
-    helper = AHLItoDICOM( AHLI_endpoint= AHLIEndpoint , fetcher_process_count=fetcher_count , dicomizer_process_count=dicomizer_count)
+    helper = AHItoDICOM( AHI_endpoint= AHIEndpoint , fetcher_process_count=fetcher_count , dicomizer_process_count=dicomizer_count)
 
     # Demonstrates how to get the metadata of an ImageSet from AHI, returned as a JSON object.
     ImageSet_metdata = helper.getMetadata(datastore_id=datastoreId , imageset_id=imageSetId)
@@ -45,7 +45,7 @@ def main():
     print("DICOMizing by StudyInstanceUID")
     instances = helper.DICOMizeByStudyInstanceUID(datastore_id=datastoreId , study_instance_uid=studyInstanceUID)
 
-    # Demonstrates how to load an ImageSet from AHLI in memory. All the instances of the ImageSet are returned in a list of pydicom dataset.
+    # Demonstrates how to load an ImageSet from AHI in memory. All the instances of the ImageSet are returned in a list of pydicom dataset.
     print("DICOMizing by ImageSetID")
     start_time = time.time()
     instances = helper.DICOMizeImageSet(datastore_id=datastoreId , image_set_id=imageSetId)

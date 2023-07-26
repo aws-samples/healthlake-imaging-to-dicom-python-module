@@ -1,14 +1,15 @@
 from setuptools import setup
 
 setup(
-    name='AHLItoDICOMInterface',
-    version='0.1.0',    
-    description='A package to simply export DICOM dataset in memory or on the file system.',
-    url='https://github.com/shuds13/pyexample',
+    name='AHItoDICOMInterface',
+    version='0.1.2',    
+    description='A package to simply export DICOM data from AWS HealthImaging in your application memory or the file system.',
+    url='https://github.com/aws-samples/healthlake-imaging-to-dicom-python-module',
+    long_description='More details about the project and features can be found on the project\'s GitHub page.',
     author='JP Leger',
     author_email='jpleger@amazon.com',
     license='MIT-0',
-    packages=['AHLItoDICOMInterface'],
+    packages=['AHItoDICOMInterface'],
     install_requires=[  'boto3',
                         'pydicom',
                         'pylibjpeg-openjpeg>=1.3.0',
@@ -22,8 +23,8 @@ setup(
         'License :: OSI Approved :: MIT No Attribution License (MIT-0)',  
         'Operating System :: POSIX :: Linux',
         'Operating System :: Microsoft :: Windows',        
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10'
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11'
     ],
+            
 )

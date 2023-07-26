@@ -1,5 +1,5 @@
 """
-AHLItoDICOM Module : This class contains the logic to encapsulate the data and the pixels into a DICOM object.
+AHItoDICOM Module : This class contains the logic to encapsulate the data and the pixels into a DICOM object.
 
 SPDX-License-Identifier: Apache-2.0
 """
@@ -15,21 +15,21 @@ from pydicom.uid import UID
 import base64
 
 
-class AHLIDataDICOMizer():
+class AHIDataDICOMizer():
 
     ds = Dataset()
     InstanceId  = None
     thread_running = None
-    AHLI_metadata = None 
+    AHI_metadata = None 
     process = None
     status = None
 
 
-    def __init__(self, InstanceId, AHLI_metadata) -> None:
+    def __init__(self, InstanceId, AHI_metadata) -> None:
         self.InstanceId = InstanceId
         self.DICOMizeJobs = Queue()
         self.DICOMizeJobsCompleted = Queue()
-        self.AHLI_metadata = AHLI_metadata
+        self.AHI_metadata = AHI_metadata
         manager = Manager()
         self.thread_running = manager.Value('i', 1)
         self.status = manager.Value(c_char_p, "idle")
@@ -41,7 +41,7 @@ class AHLIDataDICOMizer():
 
     def AddDICOMizeJob(self,FetchJob):
             self.DICOMizeJobs.put(FetchJob)
-            #logging.debug("[AHLIDataDICOMizer][AddDICOMizeJob]["+self.InstanceId+"] - DICOMize Job added "+str(FetchJob)+".")
+            #logging.debug("[AHIDataDICOMizer][AddDICOMizeJob]["+self.InstanceId+"] - DICOMize Job added "+str(FetchJob)+".")
 
     def ProcessJobs(self , DICOMizeJobs , DICOMizeJobsCompleted , status , thread_running , InstanceId):      
         while(bool(thread_running.value)):
@@ -52,14 +52,14 @@ class AHLIDataDICOMizer():
                     vrlist = []       
                     file_meta = FileMetaDataset()
                     self.ds = FileDataset(None, {}, file_meta=file_meta, preamble=b"\0" * 128)
-                    self.getDICOMVRs(self.AHLI_metadata["Study"]["Series"][ImageFrame["SeriesUID"]]["Instances"][ImageFrame["SOPInstanceUID"]]["DICOMVRs"] , vrlist)
-                    PatientLevel = self.AHLI_metadata["Patient"]["DICOM"]
+                    self.getDICOMVRs(self.AHI_metadata["Study"]["Series"][ImageFrame["SeriesUID"]]["Instances"][ImageFrame["SOPInstanceUID"]]["DICOMVRs"] , vrlist)
+                    PatientLevel = self.AHI_metadata["Patient"]["DICOM"]
                     self.getTags(PatientLevel, self.ds , vrlist)
-                    StudyLevel = self.AHLI_metadata["Study"]["DICOM"]
+                    StudyLevel = self.AHI_metadata["Study"]["DICOM"]
                     self.getTags(StudyLevel, self.ds , vrlist)
-                    SeriesLevel=self.AHLI_metadata["Study"]["Series"][ImageFrame["SeriesUID"]]["DICOM"]
+                    SeriesLevel=self.AHI_metadata["Study"]["Series"][ImageFrame["SeriesUID"]]["DICOM"]
                     self.getTags(SeriesLevel, self.ds , vrlist)
-                    InstanceLevel=self.AHLI_metadata["Study"]["Series"][ImageFrame["SeriesUID"]]["Instances"][ImageFrame["SOPInstanceUID"]]["DICOM"] 
+                    InstanceLevel=self.AHI_metadata["Study"]["Series"][ImageFrame["SeriesUID"]]["Instances"][ImageFrame["SOPInstanceUID"]]["DICOM"] 
                     self.getTags(InstanceLevel ,  self.ds , vrlist)
                     self.ds.file_meta.TransferSyntaxUID = pydicom.uid.ExplicitVRLittleEndian
                     self.ds.is_little_endian = True
@@ -73,7 +73,7 @@ class AHLIDataDICOMizer():
                 except Exception as DICOMizeError:
                     print("ERROR")
                     DICOMizeJobsCompleted.put(None)
-                    logging.error(f"[AHLIDataDICOMizer][{str(self.InstanceId)}] - {DICOMizeError}")
+                    logging.error(f"[AHIDataDICOMizer][{str(self.InstanceId)}] - {DICOMizeError}")
             else:
                 status.value = 'idle'    
                 sleep(0.1)
@@ -95,7 +95,7 @@ class AHLIDataDICOMizer():
     def getDICOMVRs(self,taglevel, vrlist):
         for theKey in taglevel:
             vrlist.append( [ theKey , taglevel[theKey] ])
-            #logging.debug(f"[AHLIDataDICOMizer][getDICOMVRs] - List of private tags VRs: {vrlist}\r\n")
+            #logging.debug(f"[AHIDataDICOMizer][getDICOMVRs] - List of private tags VRs: {vrlist}\r\n")
 
 
 
@@ -140,7 +140,7 @@ class AHLIDataDICOMizer():
                     except:
                         continue
             except Exception as err:
-                logging.warning(f"[AHLIDataDICOMizer][getTags] - {err}")
+                logging.warning(f"[AHIDataDICOMizer][getTags] - {err}")
                 continue
 
     def Dispose(self):

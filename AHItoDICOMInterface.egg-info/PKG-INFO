@@ -1,22 +1,19 @@
 Metadata-Version: 2.1
-Name: AHLItoDICOMInterface
-Version: 0.1.0
-Summary: A package to simply export DICOM dataset in memory or on the file system.
-Home-page: https://github.com/shuds13/pyexample
+Name: AHItoDICOMInterface
+Version: 0.1.2
+Summary: A package to simply export DICOM data from AWS HealthImaging in your application memory or the file system.
+Home-page: https://github.com/aws-samples/healthlake-imaging-to-dicom-python-module
 Author: JP Leger
 Author-email: jpleger@amazon.com
 License: MIT-0
-Platform: UNKNOWN
 Classifier: Development Status :: 4 - Beta
 Classifier: Intended Audience :: Science/Research
 Classifier: License :: OSI Approved :: MIT No Attribution License (MIT-0)
 Classifier: Operating System :: POSIX :: Linux
 Classifier: Operating System :: Microsoft :: Windows
-Classifier: Programming Language :: Python :: 3.8
-Classifier: Programming Language :: Python :: 3.9
 Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
 License-File: LICENSE
 License-File: NOTICE
 
-UNKNOWN
-
+More details about the project and features can be found on the project's GitHub page.
