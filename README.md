@@ -64,4 +64,26 @@ Exporting images of the ImageSet in png format.
 Exporting images of the ImageSet in DICOM P10 format.
 ```
 After the example code has returned the file system now contains folders named with the `StudyInstanceUID` of the imageSet exported within the `out` folder. This fodler prefixed with `dcm_` holds the DICOM P10 files for the imageSet. The folder prefixed with `png_` holds PNG image representations of the imageSet. 
+
+## Using this module in Amazon SageMaker
+
+This package can be used in Amazn SageMaker by adding the following code to the SageMaker notebook instance 2 first cells:
+
+### Cell 1
+
+```python
+#Install the python packages
+%%sh
+pip install --upgrade pip --quiet
+pip install boto3 botocore awscliv2 AHItoDICOMInterface --upgrade --quiet
+
 ```
+
+### Cell 2
+
+```python
+#Restart the Kernel to take the new versions of awscliv2 in account.
+import IPython
+IPython.Application.instance().kernel.do_shutdown(True) #automatically restarts kernel
+```
+An example of a SageMaker Jupyter notebook using this module is available in the `example` folder of this repository : [jupyter-sagemaker-example.ipynb](./example/jupyter-sagemaker-example.ipynb)
