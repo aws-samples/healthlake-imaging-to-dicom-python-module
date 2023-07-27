@@ -6,7 +6,6 @@ Home-page: https://github.com/aws-samples/healthlake-imaging-to-dicom-python-mod
 Author: JP Leger
 Author-email: jpleger@amazon.com
 License: MIT-0
-Platform: UNKNOWN
 Classifier: Development Status :: 4 - Beta
 Classifier: Intended Audience :: Science/Research
 Classifier: License :: OSI Approved :: MIT No Attribution License (MIT-0)
@@ -18,4 +17,3 @@ License-File: LICENSE
 License-File: NOTICE
 
 More details about the project and features can be found on the project's GitHub page.
-

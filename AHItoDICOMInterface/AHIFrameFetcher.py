@@ -25,8 +25,10 @@ class AHIFrameFetcher:
     aws_access_key = None
     aws_secret_key = None
     AHI_endpoint = None
+    logger = None
 
     def __init__(self, InstanceId , aws_access_key , aws_secret_key , AHI_endpoint = None , ahi_client = None):
+        self.logger = logging.getLogger(__name__)
         self.InstanceId = InstanceId
         self.FetchJobs = Queue()
         self.FetchJobsCompleted = Queue()
@@ -40,9 +42,7 @@ class AHIFrameFetcher:
    
     def AddFetchJob(self,FetchJob):
             self.FetchJobs.put(FetchJob)
-            #print(f"[FrameFetcher][{self.InstanceId}] Job entry added")
-            #print(FetchJob)
-            #logging.debug("[AHIFrameFetcher][AddFetchJob]["+self.InstanceId+"] - Fetch Job added "+str(FetchJob)+".")
+            self.logger.debug("[{__name__}]["+self.InstanceId+"] - Fetch Job added "+str(FetchJob)+".")
 
     def ProcessJobs(self,FetchJobs : Queue, FetchJobsCompleted : Queue , FetchJobsInError : Queue ,   aws_access_key : str = None , aws_secret_key : str = None , AHI_endpoint : str = None , ahi_client = None):  
         if ahi_client is None: 
@@ -81,8 +81,8 @@ class AHIFrameFetcher:
             d = decode(b)
             return d
         except Exception as e:
-            logging.error("[AHIFramefetcher] - Frame could not be decoded.")
-            logging.error(e)
+            self.logger.error("[{__name__}] - Frame could not be decoded.")
+            self.logger.error(e)
             return None
     
     def Dispose(self):

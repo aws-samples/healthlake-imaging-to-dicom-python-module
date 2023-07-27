@@ -10,13 +10,14 @@ import os
 import logging
 
 def main():
-    logging.basicConfig(level=logging.CRITICAL)
-    logging.getLogger('boto3').setLevel(logging.CRITICAL)
-    logging.getLogger('botocore').setLevel(logging.CRITICAL)
-    logging.getLogger('nose').setLevel(logging.CRITICAL)
-    logging.getLogger('urllib3').setLevel(logging.CRITICAL)
+    # logging.basicConfig(level=logging.CRITICAL)
+    # logging.getLogger('boto3').setLevel(logging.CRITICAL)
+    # logging.getLogger('botocore').setLevel(logging.CRITICAL)
+    # logging.getLogger('nose').setLevel(logging.CRITICAL)
+    # logging.getLogger('urllib3').setLevel(logging.CRITICAL)
+    logging.getLogger('AHItoDICOMInterface').setLevel(logging.CRITICAL)
     datastoreId = "713e4f5237a84bec991d283fa9a0788a" #Replace this value with your datastoreId.
-    imageSetId = "81bfc6aa3416912056e95188ab74870b" #Replace this value with your imageSetId.
+    imageSetId = "e0b17ef98f5df1e2f01b2603c92668e0" #Replace this value with your imageSetId.
     studyInstanceUID = "1.3.6.1.4.1.19291.2.1.1.11401331443219758551361281482" #Replace this value with the studyInstanceUID of a study exisiting in the datastore.
     AHIEndpoint = None  # Can be set to None if the default AHI endpoint is used.
 

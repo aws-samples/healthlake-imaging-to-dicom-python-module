@@ -23,9 +23,11 @@ class AHIDataDICOMizer():
     AHI_metadata = None 
     process = None
     status = None
+    logger = None
 
 
     def __init__(self, InstanceId, AHI_metadata) -> None:
+        self.logger = logging.getLogger(__name__)
         self.InstanceId = InstanceId
         self.DICOMizeJobs = Queue()
         self.DICOMizeJobsCompleted = Queue()
@@ -41,7 +43,7 @@ class AHIDataDICOMizer():
 
     def AddDICOMizeJob(self,FetchJob):
             self.DICOMizeJobs.put(FetchJob)
-            #logging.debug("[AHIDataDICOMizer][AddDICOMizeJob]["+self.InstanceId+"] - DICOMize Job added "+str(FetchJob)+".")
+            self.logger.debug("[{__name__}][AddDICOMizeJob]["+self.InstanceId+"] - DICOMize Job added "+str(FetchJob)+".")
 
     def ProcessJobs(self , DICOMizeJobs , DICOMizeJobsCompleted , status , thread_running , InstanceId):      
         while(bool(thread_running.value)):
@@ -73,13 +75,13 @@ class AHIDataDICOMizer():
                 except Exception as DICOMizeError:
                     print("ERROR")
                     DICOMizeJobsCompleted.put(None)
-                    logging.error(f"[AHIDataDICOMizer][{str(self.InstanceId)}] - {DICOMizeError}")
+                    self.logger.error(f"[{__name__}][{str(self.InstanceId)}] - {DICOMizeError}")
             else:
                 status.value = 'idle'    
                 sleep(0.1)
-            logging.debug(f" DICOMizer Process {InstanceId} : {status.value}")
+            self.logger.debug(f" DICOMizer Process {InstanceId} : {status.value}")
         status.value ="stopped"
-        logging.debug(f" DICOMizer Process {InstanceId} : {status.value}")
+        self.logger.debug(f" DICOMizer Process {InstanceId} : {status.value}")
 
     def getFramesDICOMized(self):
         if not self.DICOMizeJobsCompleted.empty():
@@ -95,7 +97,7 @@ class AHIDataDICOMizer():
     def getDICOMVRs(self,taglevel, vrlist):
         for theKey in taglevel:
             vrlist.append( [ theKey , taglevel[theKey] ])
-            #logging.debug(f"[AHIDataDICOMizer][getDICOMVRs] - List of private tags VRs: {vrlist}\r\n")
+            self.logger.debug(f"[{__name__}][getDICOMVRs] - List of private tags VRs: {vrlist}\r\n")
 
 
 
@@ -112,7 +114,7 @@ class AHIDataDICOMizer():
                 datavalue=tagLevel[theKey]
                 #print(f"{theKey} : {datavalue}")
                 if(tagvr == 'SQ'):
-                    #logging.debug(f"{theKey} : {tagLevel[theKey]} , {vrlist}")
+                    #self.logger.debug(f"{theKey} : {tagLevel[theKey]} , {vrlist}")
                     seqs = []
                     for underSeq in tagLevel[theKey]:
                         seqds = Dataset()
@@ -140,7 +142,7 @@ class AHIDataDICOMizer():
                     except:
                         continue
             except Exception as err:
-                logging.warning(f"[AHIDataDICOMizer][getTags] - {err}")
+                self.logger.warning(f"[{__name__}][getTags] - {err}")
                 continue
 
     def Dispose(self):

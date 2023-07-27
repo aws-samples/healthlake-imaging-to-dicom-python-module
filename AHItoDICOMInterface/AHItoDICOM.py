@@ -38,6 +38,7 @@ class AHItoDICOM:
     aws_access_key = None
     aws_secret_key = None
     AHI_endpoint = None
+    logger = None
 
     def __init__(self, aws_access_key : str =  None, aws_secret_key : str = None , AHI_endpoint : str = None , fetcher_process_count : int = None , dicomizer_process_count : int = None ) -> None:
         """
@@ -49,6 +50,7 @@ class AHItoDICOM:
         :param fetcher_process_count: Optional number of processes to use for fetching frames. Will default to CPU count x 8
         :param dicomizer_process_count: Optional number of processes to use for DICOMizing frames.Will default to CPU count.
         """ 
+        self.logger = logging.getLogger(__name__)
         self.ImageFrames = collections.deque()
         self.frameToDICOMize = collections.deque()
         self.DICOMizedFrames = collections.deque()
@@ -64,7 +66,7 @@ class AHItoDICOM:
         else:
             self.DICOMizerProcessCount = dicomizer_process_count
         
-        logging.debug(f"[AHItoDICOM] - Fetcher process count : {self.fetcherProcessCount} , DICOMizer process count : {self.DICOMizerProcessCount}")
+        self.logger.debug(f"[{__name__}] - Fetcher process count : {self.fetcherProcessCount} , DICOMizer process count : {self.DICOMizerProcessCount}")
         #mp.set_start_method('fork')
         
     def DICOMizeByStudyInstanceUID(self, datastore_id : str = None , study_instance_uid : str = None):
@@ -92,7 +94,7 @@ class AHItoDICOM:
         instances = []
         for imageset in search_result["imageSetsMetadataSummaries"]:
             current_imageset = imageset["imageSetId"]
-            print(current_imageset)
+            self.logger.debug(f"[{__name__}] - Exporting {current_imageset} instances in memory.")
             instances += self.DICOMizeImageSet(datastore_id=datastore_id , image_set_id=current_imageset)
 
         return instances
@@ -119,7 +121,7 @@ class AHItoDICOM:
         series = self.getSeriesList(AHI_metadata , image_set_id)[0]
         self.ImageFrames.extendleft(self.getImageFrames(datastore_id, image_set_id , AHI_metadata , series["SeriesInstanceUID"])) 
         ImageFrameCount = len(self.ImageFrames) 
-        logging.debug(f"[DICOMize] - Importing {ImageFrameCount} instances in memory.")
+        self.logger.debug(f"[{__name__}] - Importing {ImageFrameCount} instances in memory.")
         self.CountToDICOMize = ImageFrameCount
         self.FrameDICOMizerPoolManager.start()
         
@@ -139,13 +141,13 @@ class AHItoDICOM:
                         FrameFetchedCount+=1
                         self.frameToDICOMize.append(entry)  
                 sleep(0.01)
-        logging.debug("All frames Fetched and submitted to the DICOMizer queue") 
+        self.logger.debug("All frames Fetched and submitted to the DICOMizer queue") 
         for x in range(self.fetcherProcessCount):
-            logging.debug(f"[DICOMize] - Disposing frame fetcher thread # {x}")
+            self.logger.debug(f"[{__name__}] - Disposing frame fetcher thread # {x}")
             self.frameFetcherThreadList[x].Dispose()
-            logging.debug(f"[DICOMize] - frame fetcher thread # {x} disposed.")
+            self.logger.debug(f"[{__name__}] - frame fetcher thread # {x} disposed.")
         while(self.still_processing  == True):
-            logging.debug("[DICOMize] - Still processing DICOMizing...")
+            self.logger.debug(f"[{__name__}] - Still processing DICOMizing...")
             sleep(0.1)
 
         returnlist = list(self.DICOMizedFrames)
@@ -157,7 +159,7 @@ class AHItoDICOM:
 
     def AssignDICOMizeJob(self):
         #this function rounds robin accross all the dicomizer threads, until all the images are actually dicomized.
-        logging.debug(f"[AssignDICOMizeJob] - DICOMizer Thread Assigner started.")
+        self.logger.debug(f"[AssignDICOMizeJob] - DICOMizer Thread Assigner started.")
         keep_running = True
 
 
@@ -177,16 +179,16 @@ class AHItoDICOM:
 
             if(len(self.DICOMizedFrames)  == self.CountToDICOMize):
                 keep_running = False
-                logging.debug(f"DICOMized count : {dc}")
+                self.logger.debug(f"[{__name__}] - DICOMized count : {dc}")
                 for x in range(self.DICOMizerProcessCount):
-                    logging.debug(f"[DICOMize] - Disposing DICOMizer thread # {x}")
+                    self.logger.debug(f"[{__name__}] - Disposing DICOMizer thread # {x}")
                     self.frameDICOMizerThreadList[x].Dispose()
-                    logging.debug(f"[DICOMize] - DICOMizer thread # {x} Disposed.")
+                    self.logger.debug(f"[{__name__}] - DICOMizer thread # {x} Disposed.")
                 self.still_processing = False
             else:
                 sleep(0.05)
 
-        logging.debug(f"[AssignDICOMizeJob] - DICOMizer Thread Assigner finished.")        
+        self.logger.debug(f"[AssignDICOMizeJob] - DICOMizer Thread Assigner finished.")        
 
     def getImageFrames(self, datastoreId, studyId , AHI_metadata , seriesUid) -> collections.deque:
         instancesList = []
@@ -198,8 +200,8 @@ class AHItoDICOM:
                 frameId = AHI_metadata["Study"]["Series"][seriesUid]["Instances"][instances]["ImageFrames"][0]["ID"]
                 InstanceNumber = AHI_metadata["Study"]["Series"][seriesUid]["Instances"][instances]["DICOM"]["InstanceNumber"]
                 instancesList.append( { "datastoreId" : datastoreId, "studyId" : studyId , "frameId" : frameId , "SeriesUID" : seriesUid , "SOPInstanceUID" : instances,  "InstanceNumber" : InstanceNumber , "PixelData" : None})
-            except Exception as e: # The code above failes for 
-                print(e)
+            except Exception as AHIErr: # The code above failes for 
+                self.logger.error(f"[{__name__}] - {AHIErr}")
         instancesList.sort(key=self.getInstanceNumber)
         return collections.deque(instancesList)
 
@@ -238,7 +240,7 @@ class AHItoDICOM:
             json_study_metadata = json.loads(json_study_metadata)  
             return json_study_metadata
         except Exception as AHIErr :
-            logging.error(AHIErr)
+            self.logger.error(f"[{__name__}] - {AHIErr}")
             return None
     
     def getImageSetToSeriesUIDMap(self, datastore_id : str, study_instance_uid : str ):
@@ -297,7 +299,7 @@ class AHItoDICOM:
             img = Image.fromarray(image_2d_scaled)
             img.save(destination, 'png')
         except Exception as err:
-            logging.error(f"[saveAsPngPIL] - {err}")
+            self.logger.error(f"[{__name__}][saveAsPngPIL] - {err}")
             return False
         return True
 
@@ -312,10 +314,10 @@ class AHItoDICOM:
         self.frameFetcherThreadList.clear()
         self.frameDICOMizerThreadList.clear()
         for x in range(self.fetcherProcessCount): 
-            #logging.debug("[DICOMize] - Spawning AHIFrameFetcher thread # "+str(x))
+            self.logger.debug("[DICOMize] - Spawning AHIFrameFetcher thread # "+str(x))
             self.frameFetcherThreadList.append(AHIFrameFetcher(str(x), self.aws_access_key , self.aws_access_key , self.AHI_endpoint  )) 
         for x in range(self.DICOMizerProcessCount):
-            #logging.debug("[DICOMize] - Spawning AHIDICOMizer thread # "+str(x))
+            self.logger.debug("[DICOMize] - Spawning AHIDICOMizer thread # "+str(x))
             self.frameDICOMizerThreadList.append(AHIDataDICOMizer(str(x) , AHI_metadata )) 
     
     def saveAsDICOM(self, ds : pydicom.Dataset , destination : str = './out' ) -> bool:
@@ -331,6 +333,6 @@ class AHItoDICOM:
             filename = os.path.join( destination , ds["SOPInstanceUID"].value)
             ds.save_as(f"{filename}.dcm", write_like_original=False)
         except Exception as err:
-            logging.error(f"[saveAsDICOM] - {err}")
+            self.logger.error(f"[{__name__}][saveAsDICOM] - {err}")
             return False
         return True
