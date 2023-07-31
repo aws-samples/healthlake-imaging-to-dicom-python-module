@@ -1,6 +1,6 @@
-# Amazon HealthLake Imaging DICOM Exporter module
+# AWS HealthImaging DICOM Exporter module
 
-This project is a multi-processed python 3.8+ module facilitating the load of DICOM datasets stored in Amazon HealthLake Imaging into the memory or exported to the file system .
+This project is a multi-processed python 3.8+ module facilitating the load of DICOM datasets stored in AWS HealthImaging into the memory or exported to the file system .
 
 ## Getting started
 
@@ -67,7 +67,7 @@ After the example code has returned the file system now contains folders named w
 
 ## Using this module in Amazon SageMaker
 
-This package can be used in Amazn SageMaker by adding the following code to the SageMaker notebook instance 2 first cells:
+This package can be used in Amazon SageMaker by adding the following code to the SageMaker notebook instance 2 first cells:
 
 ### Cell 1
 
