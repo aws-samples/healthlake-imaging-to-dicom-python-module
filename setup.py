@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='AHItoDICOMInterface',
-    version='0.1.3',    
+    version='0.1.3.3',    
     description='A package to simply export DICOM data from AWS HealthImaging in your application memory or the file system.',
     url='https://github.com/aws-samples/healthlake-imaging-to-dicom-python-module',
     long_description='More details about the project and features can be found on the project\'s GitHub page.',
